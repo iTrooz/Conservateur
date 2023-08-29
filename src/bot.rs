@@ -89,6 +89,7 @@ pub async fn init_bot(token: &str) {
         .intents(
             serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT,
         )
+        .client_settings(|client| client.event_handler(crate::events::Handler {}))
         .run()
         .await
         .unwrap();

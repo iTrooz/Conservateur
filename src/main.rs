@@ -1,5 +1,6 @@
 mod bot;
 mod config;
+mod events;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
