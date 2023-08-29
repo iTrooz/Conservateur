@@ -4,8 +4,11 @@ pub struct Handler;
 
 #[serenity::async_trait]
 impl serenity::EventHandler for Handler {
-    async fn message(&self, ctx: serenity::Context, new_message: serenity::Message) {
-        println!("Got message");
-        println!("{:?}", ctx.data);
+    async fn reaction_add(&self, ctx: serenity::Context, reaction: serenity::Reaction) -> anyhow::Result<()> {
+        println!("{:?}", reaction);
+
+        let message = ctx
+            .http
+            .get_message(reaction.channel_id.0, reaction.message_id.0).await;
     }
 }
