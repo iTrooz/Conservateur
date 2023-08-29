@@ -1,11 +1,16 @@
 use std::collections::HashMap;
 
 use anyhow::Context;
+use poise::serenity_prelude::TypeMapKey;
 
 #[derive(serde::Deserialize)]
 pub struct Config {
     pub token: String,
     pub servers: HashMap<String, ServerConfig>,
+}
+
+impl TypeMapKey for Config {
+    type Value = Config;
 }
 
 #[derive(serde::Deserialize)]

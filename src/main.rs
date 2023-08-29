@@ -8,7 +8,7 @@ async fn main() -> anyhow::Result<()> {
     let config = config::load_config()?;
 
     // init the bot with the token
-    bot::init_bot(&config.token).await;
+    bot::init_bot(config).await;
 
     Ok(())
 }

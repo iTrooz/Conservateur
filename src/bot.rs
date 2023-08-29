@@ -1,6 +1,8 @@
 use poise::serenity_prelude as serenity;
 use std::{collections::HashMap, sync::Mutex, time::Duration};
 
+use crate::config::Config;
+
 type Error = Box<dyn std::error::Error + Send + Sync>;
 
 async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
@@ -25,7 +27,7 @@ pub struct Data {
     votes: Mutex<HashMap<String, u32>>,
 }
 
-pub async fn init_bot(token: &str) {
+pub async fn init_bot(config: Config) {
     // FrameworkOptions contains all of poise's configuration option in one struct
     // Every option can be omitted to use its default value
     let options = poise::FrameworkOptions {
@@ -75,7 +77,7 @@ pub async fn init_bot(token: &str) {
     };
 
     poise::Framework::builder()
-        .token(token)
+        .token(config.token.clone())
         .setup(move |ctx, _ready, framework| {
             Box::pin(async move {
                 println!("Logged in as {}", _ready.user.name);
@@ -89,7 +91,11 @@ pub async fn init_bot(token: &str) {
         .intents(
             serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT,
         )
-        .client_settings(|client| client.event_handler(crate::events::Handler {}))
+        .client_settings(|client| {
+            client
+                .event_handler(crate::events::Handler {})
+                .type_map_insert::<Config>(config)
+        })
         .run()
         .await
         .unwrap();
