@@ -1,8 +1,17 @@
-import { type Client, Events, TextChannel } from 'discord.js'
+import { type Client, Events, TextChannel, Message } from 'discord.js'
 import { CONFIG } from './main'
 import { LOGGER } from './logger'
 
 const sentBestMemes: string[] = [];
+
+function getMessageLinks(message: Message): string[] {
+    let links = message.attachments.map(attach => attach.url);
+    for (let url of message.embeds.map(embed => embed.url)) {
+        if (url) links.push(url);
+    }
+
+    return links;
+}
 
 export default (client: Client): void => {
 
@@ -41,7 +50,7 @@ export default (client: Client): void => {
 
         // resolve best-memes channel
         let bestMemesChannel = client.channels.resolve(guildConfig.best_memes_channel)!;
-        if (!bestMemesChannel.isTextBased()) throw TypeError("best-memes channel is not text-based");
+        if (!(bestMemesChannel instanceof TextChannel)) throw TypeError("best-memes channel is not a text channel");
 
         // at this point, we already mark the message as been sent, and put it in the already-sent best memes list
         // this is because else, if the event is sent twice very quickly, this function might be run a second time while
@@ -54,26 +63,26 @@ export default (client: Client): void => {
         // now that this is done, we can use 'await'
         // TODO no, check if the message was in the best-memes channel first (cache should be automatic ?)
 
-        // retrieve message
+        // retrieve message and get its links
         let message = reaction.message;
-        await message.fetch();
-
-        // compute content to be sent to best-memes channel
-        let content = `Meme de ${user} (${message.url})\n`;
-        if (message.attachments.size == 0) {
-            content += "> " + message.content!.replace("\n", "\n> ");
-        } else {
-            content += message.attachments.map(attach => attach.url).join(" ");
+        message = await message.fetch();
+        let links = getMessageLinks(message);
+        // we can't post text because it would be difficult to check if it has already been posted
+        if (links.length == 0) {
+            LOGGER.debug("meme was text, we can't post that")
+            message.reply("C'est cringe le texte, jpp poster ca")
         }
 
-        // verify it hasn't already been sent
-        await bestMemesChannel.messages.fetch({ limit: 100 })
-        if (bestMemesChannel.messages.cache.filter(msg => msg.content == content).size > 0) {
-            logger.debug("best-memes channel already had that meme (content cache)")
+        // verify it hasn't already been sent by comparing links
+        let bestMemes = await bestMemesChannel.messages.fetch({ limit: 100 }) // todo maybe do that in a ready event ?
+        let bestMemesLinks = bestMemes.map(msg => getMessageLinks(msg)).flat();
+        if (links.every(link => bestMemesLinks.includes(link))) {
+            logger.debug("best-memes channel already had that meme (links check)")
             return;
         }
 
         // send message
+        let content = `Meme de ${user} (${message.url})\n${links.join(" ")}`;
         await bestMemesChannel.send(content);
         logger.info("Received reaction, and sent meme to best-memes")
     })
