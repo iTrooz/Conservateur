@@ -1,0 +1,11 @@
+{
+    "token": "TOKEN HERE",
+    "servers": {
+        "516187904729415692": {
+            "memes_channel": "1146024256128421898",
+            "best_memes_channel": "1146024273673195602",
+            "needed_reactions": 1,
+            "emoji": "✅"
+        }
+    }
+}
