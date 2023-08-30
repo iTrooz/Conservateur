@@ -15,6 +15,7 @@ function getMessageLinks(message: Message): string[] {
 
 export default (client: Client): void => {
 
+    // on startup, scan past messages to see if a meme should be posted as a best meme, but had its reaction when the bot was offline
     client.on(Events.ClientReady, async () => {
         let logger = LOGGER.getSubLogger({ "name": "init_reaction" });
         logger.info("Checking reactions from existing messages")
@@ -43,6 +44,7 @@ export default (client: Client): void => {
         logger.info(`Finished !`);
     })
 
+    // check every new reaction made by users to see when a meme should be considered best meme
     client.on(Events.MessageReactionAdd, (reaction, user) => { handleReaction(reaction) });
 
     async function handleReaction(reaction: MessageReaction | PartialMessageReaction): Promise<boolean> {
