@@ -82,7 +82,7 @@ export default (client: Client): void => {
         }
 
         // send message
-        let content = `Meme de ${user} (${message.url})\n${links.join(" ")}`;
+        let content = `Meme de ${message.author} (${message.url})\n${links.join(" ")}`;
         await bestMemesChannel.send(content);
         logger.info("Received reaction, and sent meme to best-memes")
     })
