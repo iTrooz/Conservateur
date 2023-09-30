@@ -4,13 +4,26 @@ import { LOGGER } from './logger'
 
 const sentBestMemes: string[] = [];
 
+// clear query parameters (for example ?key=value) from a link
+function clearDiscordParameters(link: string): string {
+    let url = new URL(link)
+    for(let key of Array.from(url.searchParams.keys())) {
+        // exception made for the "v" parameter of youtube
+        if(key == "v")continue;
+        url.searchParams.delete(key)
+    }
+    return url.toString()
+}
+
 function getMessageLinks(message: Message): string[] {
+    // collect all URLS
     let links = message.attachments.map(attach => attach.url);
     for (let url of message.embeds.map(embed => embed.url)) {
         if (url) links.push(url);
     }
 
-    return links;
+    // remove query parameters from links + return
+    return links.map(link => clearDiscordParameters(link));
 }
 
 export default (client: Client): void => {
