@@ -47,7 +47,7 @@ export default (client: Client): void => {
                 // find reactions for that message
                 for (let [_, reaction] of message.reactions.cache) {
                     // check the reaction
-                    if(await handleReaction(reaction)) {
+                    if(await handleReaction(reaction, false)) {
                         logger.info(`Found and sent best meme that wasn't posted: ${reaction.message.url}`);
                     }
                 }
@@ -58,9 +58,9 @@ export default (client: Client): void => {
     })
 
     // check every new reaction made by users to see when a meme should be considered best meme
-    client.on(Events.MessageReactionAdd, (reaction, user) => { handleReaction(reaction) });
+    client.on(Events.MessageReactionAdd, (reaction, user) => { handleReaction(reaction, true) });
 
-    async function handleReaction(reaction: MessageReaction | PartialMessageReaction): Promise<boolean> {
+    async function handleReaction(reaction: MessageReaction | PartialMessageReaction, now: boolean): Promise<boolean> {
         const logger_id = Math.floor(Math.random() * 10000)
         const logger = LOGGER.getSubLogger({ "name": `reaction/${logger_id}` })
 
@@ -114,7 +114,9 @@ export default (client: Client): void => {
         // we can't post text because it would be difficult to check if it has already been posted
         if (links.length == 0) {
             LOGGER.debug("meme was text, we can't post that")
-            message.reply("C'est cringe le texte, jpp poster ca")
+            if (now) {
+                message.reply("C'est cringe le texte, jpp poster ca")
+            }
         }
 
         // verify it hasn't already been sent by comparing links
