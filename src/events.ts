@@ -22,8 +22,9 @@ function getMessageLinks(message: Message): string[] {
         if (url) links.push(url);
     }
 
-    // remove query parameters from links + return
-    return links.map(link => clearDiscordParameters(link));
+
+function quote(msg: string): string {
+    return msg.split("\n").map(line => "> "+line).join("\n")
 }
 
 export default (client: Client): void => {
@@ -131,7 +132,8 @@ export default (client: Client): void => {
         // send message
         let content;
         if (isText) {
-            content = `Meme de ${message.author} (${message.url})\n\n${message.content}`;
+            let quotedMsg = quote(message.content);
+            content = `Meme de ${message.author} (${message.url})\n\n${quotedMsg}`;
         } else {
             content = `Meme de ${message.author} (${message.url})\n${links.join(" ")}`;
         }
