@@ -111,12 +111,13 @@ export default (client: Client): void => {
         let message = reaction.message;
         message = await message.fetch();
         let links = getMessageLinks(message);
-        // we can't post text because it would be difficult to check if it has already been posted
+        // handle text
+        let isText;
         if (links.length == 0) {
-            LOGGER.debug("meme was text, we can't post that")
-            if (now) {
-                message.reply("C'est cringe le texte, jpp poster ca")
-            }
+            links = [message.url]
+            isText = true;
+        } else {
+            isText = false;
         }
 
         // verify it hasn't already been sent by comparing links
@@ -128,7 +129,12 @@ export default (client: Client): void => {
         }
 
         // send message
-        let content = `Meme de ${message.author} (${message.url})\n${links.join(" ")}`;
+        let content;
+        if (isText) {
+            content = `Meme de ${message.author} (${message.url})\n\n${message.content}`;
+        } else {
+            content = `Meme de ${message.author} (${message.url})\n${links.join(" ")}`;
+        }
         await bestMemesChannel.send(content);
         logger.info("Received reaction, and sent meme to best-memes");
         return true;
