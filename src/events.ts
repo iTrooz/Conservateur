@@ -1,4 +1,4 @@
-import { type Client, Events, TextChannel, Message, User, MessageReaction, PartialMessageReaction, PartialUser } from 'discord.js'
+import { type Client, Events, TextChannel, Message, MessageReaction, PartialMessageReaction } from 'discord.js'
 import { CONFIG } from './main'
 import { LOGGER } from './logger'
 
