@@ -1,0 +1,9 @@
+services:
+  app:
+    image: none.local/conservateur:latest
+    build:
+      context: .
+      dockerfile: Containerfile
+    container_name: conservateur
+    volumes:
+      - ./config.json:/app/config.json
