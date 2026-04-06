@@ -6,5 +6,6 @@ services:
       dockerfile: Containerfile
     container_name: conservateur
     read_only: true
+    restart: unless-stopped
     volumes:
       - ./config.json:/app/config.json
